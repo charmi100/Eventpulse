@@ -1,37 +1,19 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// 🔥 CONNECT DB
-mongoose.connect("mongodb://127.0.0.1:27017/eventpulse")
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log(err));
-
-// 🔥 EVENT SCHEMA
-const Event = mongoose.model("Event", {
-  title: String,
-  lat: Number,
-  lng: Number,
+app.get("/api/events", (req, res) => {
+  res.json([
+    { id: 1, name: "Music Fest", lat: 23.0225, lng: 72.5714 },
+    { id: 2, name: "Startup Meetup", lat: 23.03, lng: 72.58 }
+  ]);
 });
 
-// 🔥 GET EVENTS
-app.get("/events", async (req, res) => {
-  const events = await Event.find();
-  res.json(events);
-});
-
-// 🔥 ADD EVENT
-app.post("/events", async (req, res) => {
-  const newEvent = new Event(req.body);
-  await newEvent.save();
-  res.json(newEvent);
-});
-
-// 🔥 START SERVER
-app.listen(5001, () => {
-  console.log("Server running on port 5001");
+const PORT = 5001; // 🔥 change port (5000 causing issue)
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
