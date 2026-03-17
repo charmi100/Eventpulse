@@ -1,23 +1,37 @@
-require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log(err));
+// 🔥 CONNECT DB
+mongoose.connect("mongodb://127.0.0.1:27017/eventpulse")
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log(err));
 
-app.get("/", (req, res) => {
-  res.send("Backend server is running 🚀");
+// 🔥 EVENT SCHEMA
+const Event = mongoose.model("Event", {
+  title: String,
+  lat: Number,
+  lng: Number,
 });
 
-const PORT = 8000;
+// 🔥 GET EVENTS
+app.get("/events", async (req, res) => {
+  const events = await Event.find();
+  res.json(events);
+});
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+// 🔥 ADD EVENT
+app.post("/events", async (req, res) => {
+  const newEvent = new Event(req.body);
+  await newEvent.save();
+  res.json(newEvent);
+});
+
+// 🔥 START SERVER
+app.listen(5001, () => {
+  console.log("Server running on port 5001");
 });
