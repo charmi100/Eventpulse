@@ -12,12 +12,12 @@ body {
 }
 
 .leaflet-container {
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-}:root {
-  --background: #ffffff;
-  --foreground: #171717;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.leaflet-tile-pane {
+  opacity: 1 !important;
 }
 
 @media (prefers-color-scheme: dark) {

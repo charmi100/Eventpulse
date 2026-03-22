@@ -14,6 +14,7 @@ export default function Home() {
   const router = useRouter();
   const [events, setEvents] = useState<any[]>([]);
   const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
   useEffect(() => {
     if (!ready) return;
@@ -29,15 +30,28 @@ export default function Home() {
 
   const handleLogout = () => { logout(); router.push('/login'); };
 
-  const filtered = events.filter(e =>
-    e.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const categories = ['All', '🎵 Music', '💻 Tech', '⚽ Sports', '🎨 Art', '🍔 Food', '📚 Education', '🎉 Party', '🏃 Fitness'];
+
+  const filtered = events.filter(e => {
+    const matchesSearch = e.name?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const statusMap: Record<string, { label: string; color: string }> = {
     'upcoming':      { label: 'Upcoming',      color: '#4a9eff' },
     'starting-soon': { label: 'Starting Soon', color: '#f0a500' },
     'happening-now': { label: 'Happening Now', color: '#22c55e' },
     'finished':      { label: 'Finished',      color: '#555'    },
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this event?')) return;
+    await fetch(`http://localhost:8080/api/events/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    setEvents(prev => prev.filter((e: any) => e._id !== id));
   };
 
   return (
@@ -59,26 +73,21 @@ export default function Home() {
           </div>
         </div>
         <div style={styles.navRight}>
-  <div style={styles.userBadge}>
-    <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
-    <span style={styles.userName}>{user?.name}</span>
-  </div>
-  <button
-    onClick={() => router.push('/create-event')}
-    style={styles.createBtn}
-  >
-    + Create Event
-  </button>
-  <button onClick={handleLogout} style={styles.logoutBtn}>Sign Out</button>
-</div>
+          <div style={styles.userBadge}>
+            <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
+            <span style={styles.userName}>{user?.name}</span>
+          </div>
+          <button onClick={() => router.push('/create-event')} style={styles.createBtn}>
+            + Create Event
+          </button>
           <button onClick={handleLogout} style={styles.logoutBtn}>Sign Out</button>
-      
+        </div>
       </nav>
 
       <div style={styles.body}>
         <div style={styles.mapSection}>
           <div style={styles.mapWrapper}>
-            <EventMap events={events} setEvents={setEvents} />
+            <EventMap events={filtered} setEvents={setEvents} token={token} />
           </div>
           <div style={styles.mapHint}>📍 Click anywhere on the map to add a new event</div>
         </div>
@@ -90,6 +99,24 @@ export default function Home() {
               <p style={styles.sidebarSub}>{filtered.length} of {events.length} events</p>
             </div>
             <div style={styles.eventCountBadge}>{events.length}</div>
+          </div>
+
+          {/* Category Filters */}
+          <div style={styles.filterWrap}>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                style={{
+                  ...styles.filterBtn,
+                  backgroundColor: activeCategory === cat ? '#e94560' : 'transparent',
+                  color: activeCategory === cat ? '#fff' : '#666',
+                  borderColor: activeCategory === cat ? '#e94560' : '#2a2a45',
+                }}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
           <div style={styles.eventList}>
@@ -118,11 +145,19 @@ export default function Home() {
                     <div style={styles.cardTop}>
                       <div style={{ ...styles.statusDot, backgroundColor: s.color, boxShadow: `0 0 8px ${s.color}` }} />
                       <span style={{ ...styles.statusLabel, color: s.color }}>{s.label}</span>
+                      {event.category && (
+                        <span style={styles.categoryTag}>{event.category}</span>
+                      )}
                     </div>
                     <p style={styles.eventName}>{event.name}</p>
                     <p style={styles.eventCoords}>
                       📍 {event.lat ? Number(event.lat).toFixed(4) : '?'}, {event.lng ? Number(event.lng).toFixed(4) : '?'}
                     </p>
+                    {event.startTime && (
+                      <p style={styles.eventDate}>
+                        📅 {new Date(event.startTime).toLocaleDateString()}
+                      </p>
+                    )}
                     {event.reviews?.length > 0 && (
                       <p style={styles.reviewsHint}>
                         ⭐ {(event.reviews.reduce((s: number, r: any) => s + r.rating, 0) / event.reviews.length).toFixed(1)} · {event.reviews.length} review{event.reviews.length !== 1 ? 's' : ''}
@@ -133,6 +168,12 @@ export default function Home() {
                       style={{ ...styles.viewBtn, borderColor: s.color, color: s.color }}
                     >
                       View Details →
+                    </button>
+                    <button
+                      onClick={() => handleDelete(event._id)}
+                      style={styles.deleteBtn}
+                    >
+                      🗑️ Delete
                     </button>
                   </div>
                 );
@@ -160,13 +201,10 @@ const styles: Record<string, React.CSSProperties> = {
   userAvatar: { width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, #e94560, #c23152)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff' },
   userName: { fontSize: '13px', color: '#ccc', fontWeight: 500 },
   logoutBtn: { backgroundColor: 'transparent', color: '#666', border: '1px solid #2a2a45', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' },
+  createBtn: { backgroundColor: '#e94560', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   body: { display: 'flex', flex: 1, height: 'calc(100vh - 60px)', overflow: 'hidden' },
   mapSection: { flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' },
-  mapWrapper: { 
-    flex: 1, 
-    height: 'calc(100vh - 60px)',
-    position: 'relative' 
-  },
+  mapWrapper: { flex: 1, height: 'calc(100vh - 60px)', position: 'relative' },
   mapHint: { position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(8px)', color: '#aaa', fontSize: '12px', padding: '8px 16px', borderRadius: '20px', border: '1px solid #2a2a45', whiteSpace: 'nowrap', zIndex: 500 },
   mapLoader: { height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#12122a', color: '#555' },
   sidebar: { width: '320px', minWidth: '320px', borderLeft: '1px solid #1e1e35', display: 'flex', flexDirection: 'column', backgroundColor: '#0d0d1f', overflow: 'hidden' },
@@ -174,27 +212,21 @@ const styles: Record<string, React.CSSProperties> = {
   sidebarTitle: { margin: 0, fontSize: '16px', fontWeight: 700, color: '#fff' },
   sidebarSub: { margin: '2px 0 0', fontSize: '12px', color: '#555' },
   eventCountBadge: { width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #e94560, #c23152)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 700, color: '#fff' },
+  filterWrap: { display: 'flex', flexWrap: 'wrap', gap: '6px', padding: '12px 16px', borderBottom: '1px solid #1e1e35' },
+  filterBtn: { border: '1px solid', borderRadius: '100px', padding: '5px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit' },
   eventList: { flex: 1, overflowY: 'auto', padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px' },
   emptyState: { textAlign: 'center', padding: '48px 20px', color: '#aaa' },
   emptyTitle: { margin: '12px 0 4px', fontSize: '15px', fontWeight: 600, color: '#aaa' },
   emptySub: { margin: 0, fontSize: '12px', color: '#444', lineHeight: 1.5 },
   eventCard: { backgroundColor: '#12122a', border: '1px solid #1e1e30', borderRadius: '12px', padding: '14px', cursor: 'pointer', transition: 'all 0.2s ease' },
-  cardTop: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' },
+  cardTop: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' },
   statusDot: { width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0 },
   statusLabel: { fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' },
+  categoryTag: { fontSize: '10px', color: '#888', backgroundColor: '#1e1e35', padding: '2px 8px', borderRadius: '10px', marginLeft: 'auto' },
   eventName: { margin: '0 0 4px', fontSize: '15px', fontWeight: 700, color: '#fff' },
   eventCoords: { margin: 0, fontSize: '11px', color: '#444' },
+  eventDate: { margin: '4px 0 0', fontSize: '11px', color: '#666' },
   reviewsHint: { margin: '6px 0 0', fontSize: '12px', color: '#888' },
   viewBtn: { backgroundColor: 'transparent', border: '1px solid', borderRadius: '8px', padding: '7px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', marginTop: '12px', width: '100%', transition: 'all 0.2s' },
-  createBtn: {
-    backgroundColor: '#e94560',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '8px 16px',
-    fontSize: '13px',
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
+  deleteBtn: { backgroundColor: 'transparent', color: '#555', border: '1px solid #2a2a45', borderRadius: '8px', padding: '7px 14px', fontSize: '12px', cursor: 'pointer', marginTop: '6px', width: '100%', transition: 'all 0.2s' },
 };
-
