@@ -19,7 +19,7 @@ export default function Home() {
   useEffect(() => {
     if (!ready) return;
     if (!token) { router.push('/login'); return; }
-    fetch('http://localhost:8080/api/events')
+    fetch('https://eventpulse-backend-b9ld.onrender.com/api/events')
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error(err));
@@ -47,7 +47,7 @@ export default function Home() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this event?')) return;
-    await fetch(`http://localhost:8080/api/events/${id}`, {
+    await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },
     });

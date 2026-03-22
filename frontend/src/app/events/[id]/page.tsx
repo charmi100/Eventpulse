@@ -15,7 +15,7 @@ export default function EventDetailsPage() {
 
   useEffect(() => {
     if (!token) { router.push('/login'); return; }
-    fetch(`http://localhost:8080/api/events/${id}`)
+    fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}`)
       .then(res => res.json())
       .then(data => { setEvent(data); setLoading(false); })
       .catch(() => setLoading(false));
@@ -39,7 +39,7 @@ export default function EventDetailsPage() {
   const handleReview = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const res = await fetch(`http://localhost:8080/api/events/${id}/reviews`, {
+    const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}/reviews`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ export default function EventDetailsPage() {
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    const res = await fetch(`http://localhost:8080/api/events/${id}/reviews/${reviewId}`, {
+    const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}/reviews/${reviewId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },
     });
@@ -64,7 +64,7 @@ export default function EventDetailsPage() {
   };
 
   const handleStatusUpdate = async (status: string) => {
-    const res = await fetch(`http://localhost:8080/api/events/${id}/status`, {
+    const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}/status`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

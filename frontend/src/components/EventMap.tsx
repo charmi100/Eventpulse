@@ -37,7 +37,7 @@ function AddEvent({ setEvents, token }: any) {
     click(e) {
       const name = prompt("Enter event name:");
       if (!name) return;
-      fetch("http://localhost:8080/api/events", {
+      fetch("https://eventpulse-backend-b9ld.onrender.com/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

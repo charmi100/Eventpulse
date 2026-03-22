@@ -33,7 +33,7 @@ export default function CreateEventPage() {
     setError('');
     try {
       const startTime = new Date(`${form.date}T${form.time}`).toISOString();
-      const res = await fetch('http://localhost:8080/api/events', {
+      const res = await fetch('https://eventpulse-backend-b9ld.onrender.com/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
