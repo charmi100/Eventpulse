@@ -10,12 +10,9 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://eventpulse-qh1kp0c2h-pcharmipatel002-3831s-projects.vercel.app'
-  ],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  credentials: true,
+  credentials: false,
 }));
 
 app.use(express.json());
