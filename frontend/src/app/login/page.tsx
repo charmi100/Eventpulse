@@ -10,10 +10,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const [mounted, setMounted] = useState(false);
-useEffect(() => setMounted(true), []);
-if (!mounted) return null;
+
+  useEffect(() => setMounted(true), []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +34,8 @@ if (!mounted) return null;
     }
   };
 
+  if (!mounted) return null;
+
   return (
     <>
       <style>{`
@@ -47,7 +48,6 @@ if (!mounted) return null;
         .orb { position: absolute; border-radius: 50%; filter: blur(80px); z-index: 1; pointer-events: none; }
         .orb1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(233,69,96,0.25) 0%, transparent 70%); top: -150px; left: -100px; }
         .orb2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(80,40,180,0.2) 0%, transparent 70%); bottom: -100px; right: 300px; }
-
         .lp-left { flex: 1.3; display: flex; flex-direction: column; justify-content: flex-end; padding: 60px; position: relative; z-index: 2; }
         .lp-logo { position: absolute; top: 48px; left: 60px; display: flex; align-items: center; gap: 10px; }
         .lp-logo-icon { font-size: 26px; }
@@ -62,9 +62,7 @@ if (!mounted) return null;
         .lp-stats { display: flex; gap: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.07); }
         .lp-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 30px; color: #fff; letter-spacing: 1px; line-height: 1; }
         .lp-stat-label { font-size: 11px; color: rgba(255,255,255,0.28); text-transform: uppercase; letter-spacing: 1px; margin-top: 3px; }
-
         .lp-divider { width: 1px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.07) 30%, rgba(255,255,255,0.07) 70%, transparent); z-index: 2; position: relative; }
-
         .lp-right { flex: 0.85; display: flex; align-items: center; justify-content: center; padding: 60px 48px; position: relative; z-index: 2; background: rgba(6,6,8,0.55); backdrop-filter: blur(40px); }
         .lp-form-wrap { width: 100%; max-width: 360px; }
         .lp-form-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #e94560; margin-bottom: 12px; }
@@ -89,13 +87,11 @@ if (!mounted) return null;
         <div className="orb orb1" />
         <div className="orb orb2" />
 
-        {/* LEFT */}
         <div className="lp-left">
           <div className="lp-logo">
             <span className="lp-logo-icon">⚡</span>
             <span className="lp-logo-text">EventPulse</span>
           </div>
-
           <p className="lp-eyebrow">Live Events Platform</p>
           <h1 className="lp-title">
             Feel The<br />
@@ -105,13 +101,11 @@ if (!mounted) return null;
           <p className="lp-sub">
             Discover, create and track events happening around you — all on one interactive map in real time.
           </p>
-
           <div className="lp-chips">
             {['🗺️ Live Map', '⭐ Reviews', '🔴 Real-time Status', '🔍 Smart Search'].map(f => (
               <span key={f} className="lp-chip">{f}</span>
             ))}
           </div>
-
           <div className="lp-stats">
             <div>
               <div className="lp-stat-num">2.4K+</div>
@@ -130,47 +124,25 @@ if (!mounted) return null;
 
         <div className="lp-divider" />
 
-        {/* RIGHT */}
         <div className="lp-right">
           <div className="lp-form-wrap">
             <p className="lp-form-eyebrow">Welcome Back</p>
             <h2 className="lp-form-title">Sign In</h2>
             <p className="lp-form-sub">Enter your credentials to continue</p>
-
             {error && <div className="lp-error">{error}</div>}
-
             <form onSubmit={handleSubmit}>
               <div className="lp-input-group">
                 <label className="lp-input-label">Email Address</label>
-                <input
-                  className="lp-input"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                />
+                <input className="lp-input" type="email" placeholder="you@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
               </div>
               <div className="lp-input-group">
                 <label className="lp-input-label">Password</label>
-                <input
-                  className="lp-input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                />
+                <input className="lp-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
               </div>
-              <button
-                type="submit"
-                className="lp-btn"
-                disabled={loading}
-              >
+              <button type="submit" className="lp-btn" disabled={loading}>
                 {loading ? 'Signing In...' : 'Sign In →'}
               </button>
             </form>
-
             <p className="lp-footer">
               No account yet? <a href="/register">Join EventPulse</a>
             </p>
