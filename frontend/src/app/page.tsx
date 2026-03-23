@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import dynamic from 'next/dynamic';
+import { requestNotificationPermission, sendNotification } from '@/utils/notifications';
 
 const EventMap = dynamic(() => import('@/components/EventMap'), {
   ssr: false,
@@ -15,19 +16,45 @@ export default function Home() {
   const [events, setEvents] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [nightlifeMode, setNightlifeMode] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 18 || hour < 4) setNightlifeMode(true);
+  }, []);
 
   useEffect(() => {
     if (!ready) return;
     if (!token) { router.push('/login'); return; }
     fetch('https://eventpulse-backend-b9ld.onrender.com/api/events')
       .then(res => res.json())
-      .then(data => setEvents(data))
+      .then(data => {
+        const prevCount = events.length;
+        setEvents(data);
+        if (notificationsEnabled && data.length > prevCount) {
+          sendNotification('New Event Added! 📍', `${data[0].name} was just added near you!`);
+        }
+      })
       .catch(err => console.error(err));
   }, [token, ready]);
-
-  if (!ready) return null;
-  if (!token) return null;
-
+  useEffect(() => {
+    if (!notificationsEnabled) return;
+    const interval = setInterval(() => {
+      fetch('https://eventpulse-backend-b9ld.onrender.com/api/events')
+        .then(res => res.json())
+        .then(data => {
+          setEvents(prev => {
+            if (data.length > prev.length) {
+              const newEvent = data[0];
+              sendNotification('New Event Near You! 📍', `${newEvent.name} was just added!`);
+            }
+            return data;
+          });
+        });
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [notificationsEnabled]);
   const handleLogout = () => { logout(); router.push('/login'); };
 
   const categories = ['All', '🎵 Music', '💻 Tech', '⚽ Sports', '🎨 Art', '🍔 Food', '📚 Education', '🎉 Party', '🏃 Fitness'];
@@ -37,6 +64,11 @@ export default function Home() {
     const matchesCategory = activeCategory === 'All' || e.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const nightlifeCategories = ['🎵 Music', '🎉 Party', '🍔 Food'];
+  const displayEvents = nightlifeMode
+    ? filtered.filter(e => nightlifeCategories.includes(e.category))
+    : filtered;
 
   const statusMap: Record<string, { label: string; color: string }> = {
     'upcoming':      { label: 'Upcoming',      color: '#4a9eff' },
@@ -53,7 +85,13 @@ export default function Home() {
     });
     setEvents(prev => prev.filter((e: any) => e._id !== id));
   };
-
+  const enableNotifications = async () => {
+    const granted = await requestNotificationPermission();
+    setNotificationsEnabled(granted);
+    if (granted) {
+      sendNotification('EventPulse 🔔', 'Notifications enabled! You will be notified of new events.');
+    }
+  };
   return (
     <div style={styles.page}>
       <nav style={styles.navbar}>
@@ -77,6 +115,28 @@ export default function Home() {
             <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
             <span style={styles.userName}>{user?.name}</span>
           </div>
+          <button
+            onClick={() => setNightlifeMode(n => !n)}
+            style={{
+              ...styles.nightBtn,
+              backgroundColor: nightlifeMode ? '#6c35de' : 'transparent',
+              color: nightlifeMode ? '#fff' : '#666',
+              borderColor: nightlifeMode ? '#6c35de' : '#2a2a45',
+            }}
+          >
+            {nightlifeMode ? '🌙 Night' : '☀️ Day'}
+            <button
+  onClick={enableNotifications}
+  style={{
+    ...styles.nightBtn,
+    backgroundColor: notificationsEnabled ? '#22c55e' : 'transparent',
+    color: notificationsEnabled ? '#fff' : '#666',
+    borderColor: notificationsEnabled ? '#22c55e' : '#2a2a45',
+  }}
+>
+  {notificationsEnabled ? '🔔 On' : '🔕 Off'}
+</button>
+          </button>
           <button onClick={() => router.push('/create-event')} style={styles.createBtn}>
             + Create Event
           </button>
@@ -87,7 +147,6 @@ export default function Home() {
       <div style={styles.body}>
         <div style={styles.mapSection}>
           <div style={styles.mapWrapper}>
-            <EventMap events={filtered} setEvents={setEvents} token={token} />
           </div>
           <div style={styles.mapHint}>📍 Click anywhere on the map to add a new event</div>
         </div>
@@ -95,10 +154,12 @@ export default function Home() {
         <div style={styles.sidebar}>
           <div style={styles.sidebarHeader}>
             <div>
-              <h2 style={styles.sidebarTitle}>Nearby Events</h2>
-              <p style={styles.sidebarSub}>{filtered.length} of {events.length} events</p>
+              <h2 style={styles.sidebarTitle}>
+                {nightlifeMode ? '🌙 Nightlife Events' : 'Nearby Events'}
+              </h2>
+              <p style={styles.sidebarSub}>{displayEvents.length} of {events.length} events</p>
             </div>
-            <div style={styles.eventCountBadge}>{events.length}</div>
+            <div style={styles.eventCountBadge}>{displayEvents.length}</div>
           </div>
 
           {/* Category Filters */}
@@ -120,14 +181,18 @@ export default function Home() {
           </div>
 
           <div style={styles.eventList}>
-            {filtered.length === 0 ? (
+            {displayEvents.length === 0 ? (
               <div style={styles.emptyState}>
-                <p style={{ fontSize: '40px', margin: 0 }}>🗺️</p>
-                <p style={styles.emptyTitle}>{search ? 'No results found' : 'No events yet'}</p>
-                <p style={styles.emptySub}>{search ? 'Try a different search term' : 'Click the map to add your first event!'}</p>
+                <p style={{ fontSize: '40px', margin: 0 }}>{nightlifeMode ? '🌙' : '🗺️'}</p>
+                <p style={styles.emptyTitle}>
+                  {nightlifeMode ? 'No nightlife events' : search ? 'No results found' : 'No events yet'}
+                </p>
+                <p style={styles.emptySub}>
+                  {nightlifeMode ? 'No Music, Party or Food events found' : search ? 'Try a different search term' : 'Click the map to add your first event!'}
+                </p>
               </div>
             ) : (
-              filtered.map((event: any, i: number) => {
+              displayEvents.map((event: any, i: number) => {
                 const s = statusMap[event.status] || statusMap['upcoming'];
                 return (
                   <div
@@ -200,6 +265,7 @@ const styles: Record<string, React.CSSProperties> = {
   userBadge: { display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e1e35', padding: '5px 12px 5px 5px', borderRadius: '20px', border: '1px solid #2a2a45' },
   userAvatar: { width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, #e94560, #c23152)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff' },
   userName: { fontSize: '13px', color: '#ccc', fontWeight: 500 },
+  nightBtn: { border: '1px solid', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' },
   logoutBtn: { backgroundColor: 'transparent', color: '#666', border: '1px solid #2a2a45', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' },
   createBtn: { backgroundColor: '#e94560', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   body: { display: 'flex', flex: 1, height: 'calc(100vh - 60px)', overflow: 'hidden' },

@@ -37,7 +37,7 @@ function AddEvent({ setEvents, token }: any) {
     click(e) {
       const name = prompt("Enter event name:");
       if (!name) return;
-      fetch("https://eventpulse-backend-b9ld.onrender.com/api/events", {
+      fetch("http://localhost:8080/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,17 +57,23 @@ function AddEvent({ setEvents, token }: any) {
   return null;
 }
 
-export default function EventMap({ events, setEvents, token }: any) {
+export default function EventMap({ events, setEvents, token, nightMode }: any) {
   return (
+
     <MapContainer
       center={[23.0225, 72.5714]}
       zoom={12}
       style={{ height: '100%', width: '100%' }}
     >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; OpenStreetMap contributors'
+        url={nightMode
+          ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        }
       />
+      <EventMap events={displayEvents} setEvents={setEvents} token={token} nightMode={nightlifeMode} />
+      
       <AddEvent setEvents={setEvents} token={token} />
       {events
         .filter((e: any) => e.lat && e.lng)

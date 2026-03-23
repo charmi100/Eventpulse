@@ -15,6 +15,13 @@ app.use(cors({
   credentials: false,
 }));
 
+// Keep alive ping
+setInterval(() => {
+  fetch('https://eventpulse-backend-b9ld.onrender.com/api/events')
+    .then(() => console.log('Keep alive ping ✅'))
+    .catch(() => console.log('Ping failed'));
+}, 14 * 60 * 1000); // every 14 minutes
+
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
