@@ -71,9 +71,7 @@ export default function EventMap({ events, setEvents, token, nightMode }: any) {
           ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         }
-      />
-      <EventMap events={displayEvents} setEvents={setEvents} token={token} nightMode={nightlifeMode} />
-      
+      />      
       <AddEvent setEvents={setEvents} token={token} />
       {events
         .filter((e: any) => e.lat && e.lng)
@@ -107,8 +105,9 @@ export default function EventMap({ events, setEvents, token, nightMode }: any) {
                     </p>
                   )}
                   
-                    href={`/events/${event._id}`}
                     <a
+                                        href={`/events/${event._id}`}
+
                     style={{
                       display: 'block',
                       textAlign: 'center',
