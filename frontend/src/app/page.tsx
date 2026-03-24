@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour >= 18 || hour < 4) setNightlifeMode(true);
-  }, []);
+  }, []); 
 
   useEffect(() => {
     if (!ready) return;
@@ -253,20 +253,36 @@ export default function Home() {
 
 const styles: Record<string, React.CSSProperties> = {
   page: { minHeight: '100vh', backgroundColor: '#0a0a14', color: 'white', fontFamily: "'Segoe UI', sans-serif", display: 'flex', flexDirection: 'column' },
-  navbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', height: '60px', background: 'linear-gradient(135deg, #12122a 0%, #1a1a35 100%)', borderBottom: '1px solid #1e1e35', boxShadow: '0 2px 20px rgba(0,0,0,0.4)', position: 'sticky', top: 0, zIndex: 1000, gap: '16px' },
-  navLeft: { display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 },
+  navRight: { 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '8px', 
+    flexShrink: 0,
+    flexWrap: 'nowrap',
+  },
+    navLeft: { display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 },
   navIcon: { fontSize: '24px' },
   navTitle: { fontSize: '20px', fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' },
   navTitleAccent: { color: '#e94560' },
   navCenter: { flex: 1, maxWidth: '400px', margin: '0 auto' },
   searchWrap: { display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e1e35', border: '1px solid #2a2a45', borderRadius: '10px', padding: '8px 14px' },
   searchInput: { background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: '13px', width: '100%' },
-  navRight: { display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 },
+  navRights: { display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 },
   userBadge: { display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#1e1e35', padding: '5px 12px 5px 5px', borderRadius: '20px', border: '1px solid #2a2a45' },
   userAvatar: { width: '26px', height: '26px', borderRadius: '50%', background: 'linear-gradient(135deg, #e94560, #c23152)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff' },
-  userName: { fontSize: '13px', color: '#ccc', fontWeight: 500 },
-  nightBtn: { border: '1px solid', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' },
-  logoutBtn: { backgroundColor: 'transparent', color: '#666', border: '1px solid #2a2a45', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' },
+  userName: { fontSize: '13px', color: '#ccc', fontWeight: 500 }, 
+
+  nightBtn: { 
+    border: '1px solid', 
+    borderRadius: '8px', 
+    padding: '5px 10px', 
+    fontSize: '11px', 
+    fontWeight: 600, 
+    cursor: 'pointer', 
+    transition: 'all 0.2s',
+    whiteSpace: 'nowrap',
+  },
+    logoutBtn: { backgroundColor: 'transparent', color: '#666', border: '1px solid #2a2a45', borderRadius: '8px', padding: '6px 14px', fontSize: '12px', cursor: 'pointer' },
   createBtn: { backgroundColor: '#e94560', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' },
   body: { display: 'flex', flex: 1, height: 'calc(100vh - 60px)', overflow: 'hidden' },
   mapSection: { flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' },
