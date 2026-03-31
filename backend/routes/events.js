@@ -28,6 +28,26 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
+// POST create event
+router.post('/', authMiddleware, async (req, res) => {
+  try {
+    const { name, lat, lng, startTime, endTime, description, category } = req.body;
+    const event = await Event.create({
+      name, lat, lng, startTime, endTime, description, category,
+      createdBy: req.user.id,
+    });
+
+    // 👇 Emit to all connected users
+    const io = req.app.get('io');
+    io.emit('eventCreated', event);
+
+    res.status(201).json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // PATCH update event status
 router.patch('/:id/status', authMiddleware, async (req, res) => {
   try {
@@ -47,11 +67,17 @@ router.patch('/:id/status', authMiddleware, async (req, res) => {
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
+
+    // 👇 Emit to all connected users
+    const io = req.app.get('io');
+    io.emit('eventDeleted', { id: req.params.id });
+
     res.json({ message: 'Event deleted' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 // GET single event
 router.get('/:id', async (req, res) => {
     try {

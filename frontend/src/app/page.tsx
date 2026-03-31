@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import dynamic from 'next/dynamic';
 import { requestNotificationPermission, sendNotification } from '@/utils/notifications';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
 
 const EventMap = dynamic(() => import('@/components/EventMap'), {
   ssr: false,
@@ -53,6 +55,24 @@ export default function Home() {
     }, 30000);
     return () => clearInterval(interval);
   }, [notificationsEnabled]);
+  useEffect(() => {
+    if (!token) return;
+  
+    const socket = io('https://eventpulse-backend-b9ld.onrender.com');
+  
+    socket.on('eventCreated', (newEvent: any) => {
+      setEvents(prev => {
+        if (prev.find(e => e._id === newEvent._id)) return prev;
+        return [newEvent, ...prev];
+      });
+    });
+  
+    socket.on('eventDeleted', ({ id }: { id: string }) => {
+      setEvents(prev => prev.filter(e => e._id !== id));
+    });
+  
+    return () => { socket.disconnect(); };
+  }, [token]);
 
   if (!ready) return null;
   if (!token) return null;
