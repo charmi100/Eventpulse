@@ -126,9 +126,9 @@ export default function Home() {
           >
             {nightlifeMode ? '🌙 Night' : '☀️ Day'}
             <button
-  onClick={enableNotifications}
-  style={{
-    ...styles.nightBtn,
+            onClick={enableNotifications}
+            style={{
+    ...styles.nightBtn, 
     backgroundColor: notificationsEnabled ? '#22c55e' : 'transparent',
     color: notificationsEnabled ? '#fff' : '#666',
     borderColor: notificationsEnabled ? '#22c55e' : '#2a2a45',
@@ -161,14 +161,13 @@ export default function Home() {
             </div>
             <div style={styles.eventCountBadge}>{displayEvents.length}</div>
           </div>
-
           {/* Category Filters */}
           <div style={styles.filterWrap}>
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                style={{
+                style={{ 
                   ...styles.filterBtn,
                   backgroundColor: activeCategory === cat ? '#e94560' : 'transparent',
                   color: activeCategory === cat ? '#fff' : '#666',

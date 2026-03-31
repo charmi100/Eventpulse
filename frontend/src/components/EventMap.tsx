@@ -7,7 +7,7 @@ delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png', 
 });
 
 const categoryColors: Record<string, string> = {
@@ -37,7 +37,7 @@ function AddEvent({ setEvents, token }: any) {
     click(e) {
       const name = prompt("Enter event name:");
       if (!name) return;
-      fetch("http://localhost:8080/api/events", {
+      fetch("https://eventpulse-backend-b9ld.onrender.com/api/events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,10 +61,10 @@ export default function EventMap({ events, setEvents, token, nightMode }: any) {
   return (
 
     <MapContainer
-      center={[23.0225, 72.5714]}
-      zoom={12}
-      style={{ height: '100%', width: '100%' }}
-    >
+  center={[23.0225, 72.5714]}
+  zoom={13}
+  style={{ height: "100%", width: "100%", background: "red" }}
+>
       <TileLayer
         attribution='&copy; OpenStreetMap contributors'
         url={nightMode
@@ -89,6 +89,7 @@ export default function EventMap({ events, setEvents, token, nightMode }: any) {
                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: color }} />
                     <span style={{ fontSize: '11px', color: color, fontWeight: 600, textTransform: 'uppercase' }}>
                       {event.category || 'Event'}
+              
                     </span>
                   </div>
                   <p style={{ fontWeight: 700, fontSize: '15px', margin: '0 0 4px', color: '#111' }}>
@@ -129,4 +130,4 @@ export default function EventMap({ events, setEvents, token, nightMode }: any) {
         })}
     </MapContainer>
   );
-}
+} 
