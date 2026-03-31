@@ -56,7 +56,7 @@ export default function CreateEventPage() {
         formData.append("image", image); // ✅ IMAGE
       }
 
-      const res = await fetch('http://localhost:8080/api/events', { // ✅ LOCAL BACKEND
+      const res = await fetch('https://eventpulse-backend-b9ld.onrender.com/api/events ', { // ✅ LOCAL BACKEND
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`, // ❗ NO Content-Type
