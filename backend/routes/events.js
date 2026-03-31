@@ -107,4 +107,28 @@ router.post('/:id/reviews', authMiddleware, async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+  // POST RSVP to event
+router.post('/:id/rsvp', authMiddleware, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    const userId = req.user.id;
+    const isAttending = event.attendees.includes(userId);
+
+    if (isAttending) {
+      // Cancel RSVP
+      event.attendees = event.attendees.filter(id => id.toString() !== userId);
+    } else {
+      // Add RSVP
+      event.attendees.push(userId);
+    }
+
+    await event.save();
+    res.json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 export default router;

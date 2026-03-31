@@ -116,6 +116,39 @@ export default function EventDetailsPage() {
           </div>
 
           <div style={styles.divider} />
+          {/* RSVP Button */}
+<div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+  <button
+    onClick={async () => {
+      const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${id}/rsvp`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setEvent(data);
+    }}
+    style={{
+      padding: '10px 24px',
+      borderRadius: '10px',
+      border: '1px solid',
+      fontSize: '14px',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      backgroundColor: event.attendees?.includes(user?.id) ? '#22c55e22' : 'transparent',
+      borderColor: event.attendees?.includes(user?.id) ? '#22c55e' : '#2a2a45',
+      color: event.attendees?.includes(user?.id) ? '#22c55e' : '#aaa',
+    }}
+  >
+    {event.attendees?.includes(user?.id) ? '✅ You\'re Going!' : '🎟️ I\'m Going'}
+  </button>
+
+  {event.attendees?.length > 0 && (
+    <p style={{ color: '#666', fontSize: '13px', margin: 0 }}>
+      👥 {event.attendees.length} {event.attendees.length === 1 ? 'person' : 'people'} attending
+    </p>
+  )}
+</div>
 
           {/* Details Grid */}
           <div style={styles.detailsGrid}>

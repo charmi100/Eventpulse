@@ -240,6 +240,27 @@ export default function Home() {
                     >
                       View Details →
                     </button>
+                    {/* RSVP Button */}
+<button
+  onClick={async (e) => {
+    e.stopPropagation();
+    const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${event._id}/rsvp`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setEvents(prev => prev.map((e: any) => e._id === data._id ? data : e));
+  }}
+  style={{
+    ...styles.rsvpBtn,
+    backgroundColor: event.attendees?.includes(user?.id) ? '#22c55e22' : 'transparent',
+    borderColor: event.attendees?.includes(user?.id) ? '#22c55e' : '#2a2a45',
+    color: event.attendees?.includes(user?.id) ? '#22c55e' : '#888',
+  }}
+>
+  {event.attendees?.includes(user?.id) ? '✅ Going' : '🎟️ I\'m Going'}
+  {event.attendees?.length > 0 && ` · ${event.attendees.length}`}
+</button>
                     <button onClick={() => handleDelete(event._id)} style={styles.deleteBtn}>
                       🗑️ Delete
                     </button>
@@ -296,5 +317,6 @@ const styles: Record<string, React.CSSProperties> = {
   eventName: { margin: '0 0 3px', fontSize: '14px', fontWeight: 700, color: '#fff' },
   eventMeta: { margin: '3px 0 0', fontSize: '11px', color: '#555' },
   viewBtn: { backgroundColor: 'transparent', border: '1px solid', borderRadius: '7px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', marginTop: '10px', width: '100%', transition: 'all 0.2s' },
+  rsvpBtn: { backgroundColor: 'transparent', border: '1px solid', borderRadius: '7px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', marginTop: '5px', width: '100%', transition: 'all 0.2s' },
   deleteBtn: { backgroundColor: 'transparent', color: '#444', border: '1px solid #2a2a45', borderRadius: '7px', padding: '6px 12px', fontSize: '11px', cursor: 'pointer', marginTop: '5px', width: '100%' },
 };

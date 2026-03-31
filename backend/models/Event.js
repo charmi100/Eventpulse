@@ -19,6 +19,7 @@ const eventSchema = new mongoose.Schema({
   startTime:   { type: Date },
   endTime:     { type: Date },
   createdBy:   { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  attendees:   [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   reviews:     [reviewSchema],
   description: { type: String },
 category:    { type: String, default: 'General' },
