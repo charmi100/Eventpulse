@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import dynamic from 'next/dynamic';
 import { requestNotificationPermission, sendNotification } from '@/utils/notifications';
-import { useEffect } from 'react';
 import { io } from 'socket.io-client';
 
 const EventMap = dynamic(() => import('@/components/EventMap'), {
@@ -37,7 +36,7 @@ export default function Home() {
       .then(res => res.json())
       .then(data => setEvents(data))
       .catch(err => console.error(err));
-  }, [token, ready]);
+  }, [token, ready, router]);
 
   useEffect(() => {
     if (!notificationsEnabled) return;
@@ -55,22 +54,23 @@ export default function Home() {
     }, 30000);
     return () => clearInterval(interval);
   }, [notificationsEnabled]);
+
   useEffect(() => {
     if (!token) return;
-  
+
     const socket = io('https://eventpulse-backend-b9ld.onrender.com');
-  
+
     socket.on('eventCreated', (newEvent: any) => {
       setEvents(prev => {
         if (prev.find(e => e._id === newEvent._id)) return prev;
         return [newEvent, ...prev];
       });
     });
-  
+
     socket.on('eventDeleted', ({ id }: { id: string }) => {
       setEvents(prev => prev.filter(e => e._id !== id));
     });
-  
+
     return () => { socket.disconnect(); };
   }, [token]);
 
@@ -261,26 +261,26 @@ export default function Home() {
                       View Details →
                     </button>
                     {/* RSVP Button */}
-<button
-  onClick={async (e) => {
-    e.stopPropagation();
-    const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${event._id}/rsvp`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setEvents(prev => prev.map((e: any) => e._id === data._id ? data : e));
-  }}
-  style={{
-    ...styles.rsvpBtn,
-    backgroundColor: event.attendees?.includes(user?.id) ? '#22c55e22' : 'transparent',
-    borderColor: event.attendees?.includes(user?.id) ? '#22c55e' : '#2a2a45',
-    color: event.attendees?.includes(user?.id) ? '#22c55e' : '#888',
-  }}
->
-  {event.attendees?.includes(user?.id) ? '✅ Going' : '🎟️ I\'m Going'}
-  {event.attendees?.length > 0 && ` · ${event.attendees.length}`}
-</button>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const res = await fetch(`https://eventpulse-backend-b9ld.onrender.com/api/events/${event._id}/rsvp`, {
+                          method: 'POST',
+                          headers: { 'Authorization': `Bearer ${token}` },
+                        });
+                        const data = await res.json();
+                        setEvents(prev => prev.map((e: any) => e._id === data._id ? data : e));
+                      }}
+                      style={{
+                        ...styles.rsvpBtn,
+                        backgroundColor: event.attendees?.includes(user?.id) ? '#22c55e22' : 'transparent',
+                        borderColor: event.attendees?.includes(user?.id) ? '#22c55e' : '#2a2a45',
+                        color: event.attendees?.includes(user?.id) ? '#22c55e' : '#888',
+                      }}
+                    >
+                      {event.attendees?.includes(user?.id) ? '✅ Going' : '🎟️ I\'m Going'}
+                      {event.attendees?.length > 0 && ` · ${event.attendees.length}`}
+                    </button>
                     <button onClick={() => handleDelete(event._id)} style={styles.deleteBtn}>
                       🗑️ Delete
                     </button>
@@ -312,12 +312,8 @@ const styles: Record<string, React.CSSProperties> = {
   userName: { fontSize: '12px', color: '#ccc', whiteSpace: 'nowrap' },
   logoutBtn: { backgroundColor: 'transparent', color: '#555', border: '1px solid #2a2a45', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
   body: { display: 'flex', flex: 1, height: 'calc(100vh - 60px)', overflow: 'hidden' },
-  mapSection: { 
-    flex: 1, 
-    position: 'relative', 
-    height: 'calc(100vh - 60px)',
-    minHeight: '500px',
-  },  mapHint: { position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(8px)', color: '#aaa', fontSize: '12px', padding: '8px 16px', borderRadius: '20px', border: '1px solid #2a2a45', whiteSpace: 'nowrap', zIndex: 500 },
+  mapSection: { flex: 1, position: 'relative', height: 'calc(100vh - 60px)', minHeight: '500px' },
+  mapHint: { position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(10,10,20,0.85)', backdropFilter: 'blur(8px)', color: '#aaa', fontSize: '12px', padding: '8px 16px', borderRadius: '20px', border: '1px solid #2a2a45', whiteSpace: 'nowrap', zIndex: 500 },
   sidebar: { width: '300px', minWidth: '300px', borderLeft: '1px solid #1e1e35', display: 'flex', flexDirection: 'column', backgroundColor: '#0d0d1f', overflow: 'hidden' },
   sidebarHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #1e1e35' },
   sidebarTitle: { margin: 0, fontSize: '15px', fontWeight: 700, color: '#fff' },

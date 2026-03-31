@@ -23,6 +23,10 @@ const eventSchema = new mongoose.Schema({
   reviews:     [reviewSchema],
   description: { type: String },
 category:    { type: String, default: 'General' },
+image: {
+  type: String,
+  required: false,
+},
 }, { timestamps: true });
 
 export default mongoose.model('Event', eventSchema);
