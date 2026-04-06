@@ -172,6 +172,14 @@ export default function Home() {
             <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
             <span style={styles.userName}>{user?.name}</span>
           </div>
+          <div 
+  style={styles.userBadge} 
+  onClick={() => router.push('/profile')}
+  title="View Profile"
+>
+  <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
+  <span style={styles.userName}>{user?.name}</span>
+</div>
 
           <button onClick={handleLogout} style={styles.logoutBtn}>Sign Out</button>
         </div>

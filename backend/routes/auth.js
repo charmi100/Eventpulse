@@ -2,6 +2,26 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import Event from '../models/Event.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+
+// GET user profile
+router.get('/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    const createdEvents = await Event.find({ createdBy: req.user.id });
+    const attendingEvents = await Event.find({ attendees: req.user.id });
+
+    res.json({
+      user,
+      createdEvents,
+      attendingEvents,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 const router = express.Router();
 const SECRET = process.env.JWT_SECRET || 'your_secret_key';
