@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -13,7 +12,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -42,56 +41,103 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#060608] text-white relative overflow-hidden">
+    <>
+      <style>{`
+        body { margin:0; background:#050507; font-family:sans-serif; }
 
-      {/* glow background */}
-      <div className="absolute w-[600px] h-[600px] bg-pink-600/20 blur-[120px] rounded-full -top-40 -left-40" />
-      <div className="absolute w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full bottom-0 right-0" />
+        .login-container {
+          height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          position:relative;
+        }
 
-      <div className="relative w-full max-w-sm p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+        .glow1, .glow2 {
+          position:absolute;
+          border-radius:50%;
+          filter:blur(120px);
+        }
 
-        <h1 className="text-3xl font-semibold mb-2">Welcome back</h1>
-        <p className="text-white/40 mb-6">Sign in to continue</p>
+        .glow1 {
+          width:500px; height:500px;
+          background:rgba(233,69,96,0.3);
+          top:-150px; left:-100px;
+        }
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-lg text-red-400 text-sm mb-4">
-            {error}
-          </div>
-        )}
+        .glow2 {
+          width:400px; height:400px;
+          background:rgba(100,80,255,0.3);
+          bottom:-100px; right:-100px;
+        }
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        .card {
+          background:rgba(255,255,255,0.05);
+          backdrop-filter:blur(20px);
+          border:1px solid rgba(255,255,255,0.1);
+          padding:40px;
+          border-radius:16px;
+          width:320px;
+          color:white;
+          z-index:2;
+        }
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 focus:border-pink-500 outline-none"
-            required
-          />
+        h1 { margin-bottom:10px; }
+        p { color:#aaa; font-size:14px; }
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded-lg bg-white/5 border border-white/10 focus:border-pink-500 outline-none"
-            required
-          />
+        input {
+          width:100%;
+          padding:12px;
+          margin-top:10px;
+          border-radius:8px;
+          border:1px solid rgba(255,255,255,0.1);
+          background:rgba(255,255,255,0.05);
+          color:white;
+        }
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-pink-500 to-red-500 font-semibold hover:scale-[1.03] transition"
-          >
-            {loading ? 'Signing in...' : 'Login →'}
-          </button>
-        </form>
+        button {
+          width:100%;
+          margin-top:15px;
+          padding:12px;
+          border:none;
+          border-radius:8px;
+          background:linear-gradient(135deg,#e94560,#c0203d);
+          color:white;
+          cursor:pointer;
+        }
 
-        <p className="text-sm text-white/40 mt-6 text-center">
-          No account? <a href="/register" className="text-pink-500">Create one</a>
-        </p>
+        .error {
+          background:#ff4d4d22;
+          padding:10px;
+          margin-bottom:10px;
+          border-radius:6px;
+          color:#ff6b6b;
+        }
+
+        a { color:#e94560; }
+      `}</style>
+
+      <div className="login-container">
+        <div className="glow1"></div>
+        <div className="glow2"></div>
+
+        <div className="card">
+          <h1>Welcome back</h1>
+          <p>Login to continue</p>
+
+          {error && <div className="error">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
+            <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
+            <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
+            <button>{loading ? 'Signing...' : 'Login →'}</button>
+          </form>
+
+          <p style={{marginTop:'15px'}}>
+            No account? <a href="/register">Create one</a>
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
