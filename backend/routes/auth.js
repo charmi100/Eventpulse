@@ -5,7 +5,11 @@ import User from '../models/user.js';
 import Event from '../models/Event.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
-// GET user profile
+const router = express.Router(); // ✅ MUST BE BEFORE USING
+
+const SECRET = process.env.JWT_SECRET || 'your_secret_key';
+
+// ── GET PROFILE ───────────────────────────────────────
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
@@ -23,9 +27,6 @@ router.get('/profile', authMiddleware, async (req, res) => {
   }
 });
 
-const router = express.Router();
-const SECRET = process.env.JWT_SECRET || 'your_secret_key';
-
 // ── REGISTER ──────────────────────────────────────────
 router.post('/register', async (req, res) => {
   try {
@@ -41,7 +42,7 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } });
 
   } catch (err) {
-    console.error(err); // 👈 helpful for debugging
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -61,7 +62,7 @@ router.post('/login', async (req, res) => {
     res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
 
   } catch (err) {
-    console.error(err); // 👈 helpful for debugging
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
